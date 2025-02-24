@@ -6,8 +6,9 @@ import java.util.stream.Collectors;
 
 public class Main {
     public static void main(String[] args) throws JsonProcessingException {
-        CategoryTree tree = new CategoryTree();
 
+        // 1번 문제
+        CategoryTree tree = new CategoryTree();
 
         tree.addCategory(1, "남자", null);
         tree.addCategory(2, "여자", null);
@@ -51,5 +52,16 @@ public class Main {
                     }
                 })
                 .collect(Collectors.joining(", ")));  // JSON 문자열들을 하나로 합쳐서 출력
+
+
+
+        // 2번 문제
+        int[] coins1 = {1, 2, 3};
+        int sum1 = 4;
+        System.out.println("출력: " + CoinGame.coinGame(sum1, coins1)); // 4
+
+        int[] coins2 = {2, 5, 3, 6};
+        int sum2 = 10;
+        System.out.println("출력: " + CoinGame.coinGame(sum2, coins2)); // 5
     }
 }
