@@ -2,6 +2,7 @@ package com.hanteoglobal;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 
 import java.util.*;
 
@@ -43,6 +44,8 @@ public class CategoryTree {
         if (parentId != null) {
             // 부모 카테고리의 ID가 parentChildMap 에 존재하지 않으면 빈 리스트 생성후 자식 카테고리 ID 추가
             parentChildMap.computeIfAbsent(parentId, k -> new ArrayList<>()).add(categoryId);
+            Category parent = categoryMap.get(parentId);
+            parent.addChild(category);
         }
 
     }
@@ -95,23 +98,45 @@ public class CategoryTree {
     }
 
 
-
-    /**
-     * 카테고리 트리를 JSON 형식으로 반환합니다.
-     *
-     * @return 카테고리 트리의 JSON 문자열
-     * @throws JsonProcessingException JSON 변환 시 오류 발생 시
-     */
-    String toJson() throws JsonProcessingException {
-        // 카테고리와 부모-자식 관계를 포함하는 트리 형태의 맵을 작성하여 JSON으로 변환
-        Map<String, Object> categoryTreeMap = new HashMap<>();
-        categoryTreeMap.put("categories", categoryMap);
-        categoryTreeMap.put("relations", parentChildMap);
-
-        // ObjectMapper를 사용하여 JSON 문자열로 변환
+    public String toJson() throws JsonProcessingException {
         ObjectMapper objectMapper = new ObjectMapper();
-        return objectMapper.writeValueAsString(categoryTreeMap);
+        objectMapper.enable(SerializationFeature.INDENT_OUTPUT); // 예쁘게 출력
+
+        // 루트 카테고리 찾기: 다른 카테고리의 자식이 아닌 카테고리
+        List<Category> rootCategories = new ArrayList<>();
+        for (Category category : categoryMap.values()) {
+            // 루트 카테고리는 parentChildMap에 해당 category ID가 키로 없으면
+            // 다른 카테고리의 자식이 아닌 카테고리로 간주
+            boolean isChildOfOtherCategory = false;
+            for (List<Integer> children : parentChildMap.values()) {
+                if (children.contains(category.getId())) {
+                    isChildOfOtherCategory = true;
+                    break;
+                }
+            }
+            if (!isChildOfOtherCategory) {
+                rootCategories.add(buildCategoryTree(category)); // 트리 형태로 자식까지 포함하여 추가
+            }
+        }
+
+        // 모든 카테고리를 트리 형태로 반환
+        return objectMapper.writeValueAsString(rootCategories);
     }
+
+    private Category buildCategoryTree(Category parentCategory) {
+        List<Integer> childIds = parentChildMap.get(parentCategory.getId());
+        if (childIds != null) {
+            for (Integer childId : childIds) {
+                Category child = categoryMap.get(childId);
+                if (child != null) {
+                    parentCategory.addChild(buildCategoryTree(child));  // 자식 카테고리도 재귀적으로 트리로 만듦
+                }
+            }
+        }
+        return parentCategory;
+    }
+
+
 
 
 }

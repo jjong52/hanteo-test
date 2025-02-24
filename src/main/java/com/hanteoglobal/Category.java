@@ -1,8 +1,9 @@
 package com.hanteoglobal;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Getter;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * 카테고리를 표현하는 클래스.
@@ -12,22 +13,15 @@ import lombok.Getter;
 public class Category {
     private Integer id;
     private String name;
+    private List<Category> children = new ArrayList<>();
 
     public Category(Integer id, String name) {
         this.id = id;
         this.name = name;
     }
 
-    /**
-     * 카테고리를 JSON 형식으로 반환합니다.
-     *
-     * @return 카테고리의 JSON 문자열
-     * @throws JsonProcessingException JSON 변환 중 오류 발생 시 예외 처리
-     */
-
-    public String toJson() throws JsonProcessingException {
-        ObjectMapper objectMapper = new ObjectMapper();
-        return objectMapper.writeValueAsString(this);
+    public void addChild(Category category) {
+        this.children.add(category);
     }
 
 }
