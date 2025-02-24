@@ -4,9 +4,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Getter;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /**
  * 카테고리를 표현하는 클래스.
  * 각 카테고리는 고유한 ID, 이름, 그리고 하위 카테고리 리스트를 가집니다.
