@@ -2,8 +2,6 @@ package com.hanteoglobal;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 
-import java.util.stream.Collectors;
-
 public class Main {
     public static void main(String[] args) throws JsonProcessingException {
 
@@ -39,19 +37,9 @@ public class Main {
 
 
 
-        System.out.println("tree: " + tree.toJson());
+        tree.printCategoryTreeAsJson();
 
-        System.out.println("공지사항 게시판: " + tree.findCategoriesByNameContains("공지")
-                .stream()
-                .map(category -> {
-                    try {
-                        return category.toJson();  // 각 카테고리 객체의 toJson 메서드를 호출하여 JSON 문자열로 변환
-                    } catch (JsonProcessingException e) {
-                        e.printStackTrace();
-                        return null; // 예외 처리
-                    }
-                })
-                .collect(Collectors.joining(", ")));  // JSON 문자열들을 하나로 합쳐서 출력
+
 
 
 

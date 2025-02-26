@@ -11,7 +11,7 @@ import java.util.*;
  * 카테고리 간의 관계를 관리하고, 검색 및 JSON 변환 기능을 제공합니다.
  */
 public class CategoryTree {
-    private Map<Integer,Category> categoryMap;
+    private Map<Integer, Category> categoryMap;
     private Map<Integer, List<Integer>> parentChildMap; // 관계 데이터 저장 (parent_id -> child_id)
 
     CategoryTree() {
@@ -97,46 +97,37 @@ public class CategoryTree {
         return matchingCategories;
     }
 
-
-    public String toJson() throws JsonProcessingException {
+    /**
+     * 카테고리 트리를 JSON 형식으로 출력합니다.
+     */
+    public void printCategoryTreeAsJson() {
         ObjectMapper objectMapper = new ObjectMapper();
-        objectMapper.enable(SerializationFeature.INDENT_OUTPUT); // 예쁘게 출력
+        objectMapper.enable(SerializationFeature.INDENT_OUTPUT); // 들여쓰기 활성화
 
-        // 루트 카테고리 찾기: 다른 카테고리의 자식이 아닌 카테고리
-        List<Category> rootCategories = new ArrayList<>();
+        Set<Category> rootCategories = new HashSet<>();
+
         for (Category category : categoryMap.values()) {
-            // 루트 카테고리는 parentChildMap에 해당 category ID가 키로 없으면
-            // 다른 카테고리의 자식이 아닌 카테고리로 간주
-            boolean isChildOfOtherCategory = false;
-            for (List<Integer> children : parentChildMap.values()) {
-                if (children.contains(category.getId())) {
-                    isChildOfOtherCategory = true;
-                    break;
-                }
-            }
-            if (!isChildOfOtherCategory) {
-                rootCategories.add(buildCategoryTree(category)); // 트리 형태로 자식까지 포함하여 추가
+            if(isRootCategory(category.getId())) {
+                rootCategories.add(category);
             }
         }
 
-        // 모든 카테고리를 트리 형태로 반환
-        return objectMapper.writeValueAsString(rootCategories);
+        try {
+            String json = objectMapper.writeValueAsString(rootCategories);
+            System.out.println(json);
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+
     }
 
-    private Category buildCategoryTree(Category parentCategory) {
-        List<Integer> childIds = parentChildMap.get(parentCategory.getId());
-        if (childIds != null) {
-            for (Integer childId : childIds) {
-                Category child = categoryMap.get(childId);
-                if (child != null) {
-                    parentCategory.addChild(buildCategoryTree(child));  // 자식 카테고리도 재귀적으로 트리로 만듦
-                }
+    boolean isRootCategory(int categoryId) {
+        for (List<Integer> childIds : parentChildMap.values()) {
+            if (childIds.contains(categoryId)) {
+                return false;
             }
         }
-        return parentCategory;
+        return true;
     }
-
-
-
 
 }
